@@ -2,18 +2,23 @@ import pandas as pd
 import math
 import numpy as np
 
+# Read the input data from a CSV file
 df = pd.read_csv(r'C:/Users/jeremie/Desktop/SraRunTable.txt')
-df=df[['Run','Age','disease','AvgSpotLen','Bases','sex','disease_stage','Library Name']]
+
+# Select specific columns from the DataFrame
+df = df[['Run', 'Age', 'disease', 'AvgSpotLen', 'Bases', 'sex', 'disease_stage', 'Library Name']]
+
+# Filter rows based on Library Name ending with 'PC'
 df = df[df['Library Name'].str.endswith('PC')]
 
+# Calculate the estimated number of reads
+df['reads'] = ((df['Bases'] / (df['AvgSpotLen'] * 2))).apply(np.floor).astype(int)
 
-df['reads']=((df['Bases']/(df['AvgSpotLen']*2)))
-df['reads']=df['reads'].apply(np.floor).astype(int)
-
-df_cancer =df[df['disease']=='COLORECTAL CANCER']
-df_cancer.to_csv(r'c:\users\jeremie\desktop\df_cancer_IC.txt',index=None)
+# Separate data into cancer and control groups and save to separate files
+df_cancer = df[df['disease'] == 'COLORECTAL CANCER']
+df_cancer.to_csv(r'c:\users\jeremie\desktop\df_cancer_IC.txt', index=None)
 print(df_cancer.head())
 
-df_control=df[df['disease']=='CONTROL']
-df_control.to_csv(r'c:\users\jeremie\desktop\df_control_IC.txt',index=None)
+df_control = df[df['disease'] == 'CONTROL']
+df_control.to_csv(r'c:\users\jeremie\desktop\df_control_IC.txt', index=None)
 print(df_control.head())
