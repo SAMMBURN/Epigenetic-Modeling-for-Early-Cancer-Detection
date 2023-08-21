@@ -5,12 +5,15 @@ import subprocess
 import random
 import pandas as pd
 
-# Input parameters
-df_cancer=pd.read_csv(r"/home/sam/df_control_IC.txt")
-sra_names=df_cancer['Run'].tolist()
-sra_reads=df_cancer['reads'].tolist()
+# Load the cancer data file as a DataFrame
+df_cancer = pd.read_csv(r"/home/sam/df_control.txt")
 
-sra_file = r"/home/sam/df_control_IC.txt"
+# Extract SRA names and read counts from the DataFrame
+sra_names = df_cancer['Run'].tolist()
+sra_reads = df_cancer['reads'].tolist()
+
+# Set paths and parameters
+sra_file = r"/home/sam/df_control.txt"
 genome_dir = 'human_ge'  # Replace with your genome directory
 
 # Fastq-dump parameters
@@ -19,35 +22,34 @@ output_dir = '/home/sam/fastq'  # Replace with your desired output directory
 
 # Bowtie2 parameters
 num_threads = 8 
-alignment_options = '--very-sensitive-local'  # Alignment options to use
 
 # Combine BAM files using samtools
-bam_files=[]
+bam_files = []
 bam_file = '/home/sam/all_samples.bam'  # Replace with your desired output BAM file
 
 bedgraph_file = '/home/sam/all_samples.bedGraph'  # Replace with your desired output bedGraph file
 
-# Download SRA files and convert to Fastq, then align reads to the reference genome using Bowtie2
+# Download SRA files, convert to Fastq, align reads, and create BAM and bedGraph files
 
-n_test=sra_names[0:7]
-print(len(sra_names))
-for  n in range(3,7):
-    sra_name=sra_names[n]
-    read=sra_reads[n]
-    min_num = 0
+# Loop through a subset of SRA names
+for n in range(3, 7):
+    sra_name = sra_names[n]
+    read = sra_reads[n]
+    
+    # Generate a random start position within the read range
     max_num = read
     num_samples = 1000000
-    start=random.randint(0,max_num-num_samples)
-    end=start+999999
+    start = random.randint(0, max_num - num_samples)
+    end = start + 999999
     
     # Download the first n_reads from the SRA file and output as paired-end Fastq files
     output_file_1 = f'{output_dir}/{sra_name}_1.fastq.gz'
     output_file_2 = f'{output_dir}/{sra_name}_2.fastq.gz'
-    bed= f'/mnt/c/users/jeremie/desktop/sra_files_IC/control_IC_{sra_name}.bed.gz'
+    bed = f'/mnt/c/users/jeremie/desktop/sra_files_IC/control_IC_{sra_name}.bed.gz'
     cmd = f'fastq-dump --gzip --split-files -N {start} -X {end} {sra_name} --outdir {output_dir} '
     subprocess.run(cmd, shell=True)
 
-    # Align paired-end reads to the reference genome
+    # Align paired-end reads to the reference genome using Bowtie2
     input_file_1 = f'{output_dir}/{sra_name}_1.fastq.gz'
     input_file_2 = f'{output_dir}/{sra_name}_2.fastq.gz'
     output_file = f'{output_dir}/{sra_name}.bam'
@@ -61,9 +63,7 @@ for  n in range(3,7):
     # Add the resulting BAM file to the list of BAM files
     bam_files.append(output_file)
 
-
-
-# Create bedGraph file using genomeCoverageBed from bedtools
+    # Sort and index the BAM file, then convert to bedGraph format
     cmd = f'samtools sort -@ {num_threads} -o {output_file} {output_file}; samtools index {output_file}; bedtools bamtobed -i {output_file} | gzip > {bed}'
     subprocess.run(cmd, shell=True)
     os.remove(output_file)
