@@ -2,8 +2,8 @@ import pandas as pd
 import math
 import numpy as np
 
-# Read the input data from a CSV file
-df = pd.read_csv(r'C:/Users/jeremie/Desktop/SraRunTable.txt')
+# Read the input data from a CSV file, modify the file location to accommodate your environment 
+df = pd.read_csv(r'/Desktop/SraRunTable.txt')
 
 # Select specific columns from the DataFrame
 df = df[['Run', 'Age', 'disease', 'AvgSpotLen', 'Bases', 'sex', 'disease_stage', 'Library Name']]
