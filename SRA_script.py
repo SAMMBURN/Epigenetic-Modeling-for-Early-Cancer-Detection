@@ -6,14 +6,14 @@ import random
 import pandas as pd
 
 # Load the cancer data file as a DataFrame
-df_cancer = pd.read_csv(r"/home/sam/df_control.txt")
+df_cancer = pd.read_csv(r"/home/sam/df_cancer.txt")
 
 # Extract SRA names and read counts from the DataFrame
 sra_names = df_cancer['Run'].tolist()
 sra_reads = df_cancer['reads'].tolist()
 
 # Set paths and parameters
-sra_file = r"/home/sam/df_control.txt"
+sra_file = r"/home/sam/df_cancer.txt"
 genome_dir = 'human_ge'  # Replace with your genome directory
 
 # Fastq-dump parameters
@@ -32,7 +32,7 @@ bedgraph_file = '/home/sam/all_samples.bedGraph'  # Replace with your desired ou
 # Download SRA files, convert to Fastq, align reads, and create BAM and bedGraph files
 
 # Loop through a subset of SRA names
-for n in range(3, 7):
+for n in range(0, 400):
     sra_name = sra_names[n]
     read = sra_reads[n]
     
@@ -41,11 +41,11 @@ for n in range(3, 7):
     num_samples = 1000000
     start = random.randint(0, max_num - num_samples)
     end = start + 999999
-    
-    # Download the first n_reads from the SRA file and output as paired-end Fastq files
+
+    # Download n_reads from the SRA file and output as paired-end Fastq files
     output_file_1 = f'{output_dir}/{sra_name}_1.fastq.gz'
     output_file_2 = f'{output_dir}/{sra_name}_2.fastq.gz'
-    bed = f'/mnt/c/users/jeremie/desktop/sra_files_IC/control_IC_{sra_name}.bed.gz'
+    bed = f'/desktop/sra_files/cancer_{sra_name}.bed.gz' #must be changed if control dataset is downloaded
     cmd = f'fastq-dump --gzip --split-files -N {start} -X {end} {sra_name} --outdir {output_dir} '
     subprocess.run(cmd, shell=True)
 
